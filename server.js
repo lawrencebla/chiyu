@@ -130,6 +130,6 @@ ws.on('connection', function(sk) {
 
 });
 
-server.listen(3001);
+server.listen(process.env.PORT || 3001);
 
 app.use(express.static(path.join(__dirname, 'public')));
