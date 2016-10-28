@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chiyu</title>
+</head>
+<body>
+	<video id="video" autoplay></video>
+	<script>
+
+		var actions = {
+			downloadOffer: function(data) {
+		        pc.setRemoteDescription(new nativeRTCSessionDescription(data.sdp));
+		        pc.createAnswer(function(session_desc) {
+		            pc.setLocalDescription(session_desc);
+		            sk.send(JSON.stringify({
+		                "actionType": "uploadAnswer",
+		                "data": {
+		                    "sdp": session_desc,
+		                    socketId: data.socketId
+		                }
+		            }));
+		        }, function(error) {
+		            console.log(error);
+		        });
+			},
+			downloadIceCandidate: function(data) {
+				pc.addIceCandidate(new nativeRTCIceCandidate(data));
+			},
+			createPeer: function(socketId) {
+				pc = new PeerConnection(iceServer);
+		        pc.onicecandidate = function (e) {
+				    if (!e.candidate) return;
+
+				    var candidateObj = {
+			    		label: e.candidate.sdpMLineIndex,
+			    		candidate: e.candidate.candidate,
+			    		socketId: socketId,
+				    };
+	                sk.send(JSON.stringify({
+	                    "actionType": "sendIceCandidateToHost",
+	                    "data": candidateObj
+	                }));
+				};
+		        pc.onaddstream = function (e) {
+				    document.getElementById('video').src = webkitURL.createObjectURL(e.stream);
+				};
+			},
+			removeHost: function() {
+				if(pc) {
+					pc.close();
+					pc = null;
+				}
+			}
+		}
+		
+	    var PeerConnection = (window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+	    var nativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+	    var nativeRTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription); 
+
+		var sk = new WebSocket('wss:' + window.location.href.substring(window.location.protocol.length));
+		var pc = null;
+		var iceServer = {
+	        "iceServers": [{
+	            "url": "stun:stun.l.google.com:19302"
+	        }]
+	    };
+
+		sk.onmessage = function(message) {
+			var json = JSON.parse(message.data);
+			actions[json.actionType](json.data);
+		}
+
+
+	</script>
+</body>
+</html>

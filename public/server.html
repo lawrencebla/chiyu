@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chiyu</title>
+</head>
+<body>
+	<video id="video" autoplay></video>
+	<script>
+		var cPcs = {};
+
+		var actions = {
+			downloadAnswer: function(data) {
+				var pc = cPcs[data.socketId];
+        		pc.setRemoteDescription(new nativeRTCSessionDescription(data.sdp));
+			},
+			downloadIceCandidate: function(data) {
+				var pc = cPcs[data.socketId];
+				pc.addIceCandidate(new nativeRTCIceCandidate(data));
+			},
+			createStream: function(clients) {
+			    getUserMedia.call(navigator, {
+			        video: true,
+			        audio: true
+			    }, function(localMediaStream) {
+			    	var clientPc = null;
+			    	clients.forEach( function(socketId) {
+			    		if( !cPcs[socketId] ) {
+				    		clientPc = new PeerConnection(iceServer);
+				    		cPcs[socketId] = clientPc;			    			
+			    		} else {
+			    			clientPc = cPcs[socketId];
+			    		}
+			    		clientPc.onicecandidate = function(e) {
+				    		if (!e.candidate) return;
+						    var candidateObj = {
+					    		label: e.candidate.sdpMLineIndex,
+					    		candidate: e.candidate.candidate,
+					    		socketId: socketId
+						    };
+			                sk.send(JSON.stringify({
+			                    "actionType": "sendIceCandidateToClient",
+			                    "data": candidateObj
+			                }));
+			    		}
+						clientPc.addStream(localMediaStream);
+						(function(clientPc, socketId){
+						    clientPc.createOffer(function(session_desc){
+						    	clientPc.setLocalDescription(session_desc);
+				                sk.send(JSON.stringify({
+				                    "actionType": "uploadOffer",
+				                    "data": {
+				                        "sdp": session_desc,
+				                        socketId: socketId
+				                    }
+				                }));
+						    }, function(e) {
+						    	console.log(error);
+						    } );
+						})(clientPc, socketId);
+			    	} );
+				}, function() {
+					console.log('get user media error');
+				});				
+			},
+			removeClient: function(socketId) {
+				if(cPcs[socketId]) {
+					cPcs[socketId].close();
+					delete cPcs[socketId];					
+				}
+			}
+		}
+		
+	    var PeerConnection = (window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+	    var URL = (window.URL || window.webkitURL || window.msURL || window.oURL);
+	    var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+	    var nativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+	    var nativeRTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription); 
+	    var moz = !!navigator.mozGetUserMedia;
+
+		var sk = new WebSocket('wss:' + window.location.href.substring(window.location.protocol.length));
+		var iceServer = {
+	        "iceServers": [{
+	            "url": "stun:stun.l.google.com:19302"
+	        }]
+	    };
+
+		sk.onmessage = function(message) {
+			var json = JSON.parse(message.data);
+			console.log(json.actionType);
+			actions[json.actionType](json.data);
+		}
+        sk.onclose = function(data) {
+            cPcs.forEach(function(pc) {
+            	pc.close();
+            })
+            cPcs = [];
+        };
+
+	</script>
+</body>
+</html>
