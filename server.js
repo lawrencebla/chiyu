@@ -130,7 +130,7 @@ ws.on('connection', function(sk) {
 
 });
 // console.error(process.env.PORT);
-app.listen(37476);
+app.listen(process.env.PORT || 5000);
 // app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(path.join(__dirname, 'public')));
