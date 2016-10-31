@@ -7,9 +7,12 @@
 <body>
 	<video id="video" autoplay></video>
 	<script>
-if(!nativeRTCSessionDescription) {
-	alert('什么破浏览器');
-} else {
+	var PeerConnection = (window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+	var nativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+	var nativeRTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription); 
+	if(!nativeRTCSessionDescription) {
+		alert('什么破浏览器');
+	} else {
 
 		var actions = {
 			downloadOffer: function(data) {
@@ -57,9 +60,6 @@ if(!nativeRTCSessionDescription) {
 			}
 		}
 		
-	    var PeerConnection = (window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
-	    var nativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
-	    var nativeRTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription); 
 
 		var sk = new WebSocket('wss:' + window.location.href.substring(window.location.protocol.length));
 		var pc = null;
@@ -74,7 +74,7 @@ if(!nativeRTCSessionDescription) {
 			actions[json.actionType](json.data);
 		}
 
-}
+	}
 
 	</script>
 </body>
