@@ -74,6 +74,7 @@ var actions = {
 	}
 }
 wss.on("connection", function(sk) {
+	console.log(sk.upgradeReq.url);
   if( sk.upgradeReq.url !== '/server.html' ) {
   	console.log('client');
   	sk.id = UUID.v4();
