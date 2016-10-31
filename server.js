@@ -3,11 +3,11 @@ var fs = require("fs");
 var express = require('express');
 var UUID = require('node-uuid');
 var app = express();
-// var WebSocketServer = require('ws').Server;
-// var server = require('https').createServer({
-//   key: fs.readFileSync(path.join(__dirname, './keys', 'key.pem')),
-//   cert: fs.readFileSync(path.join(__dirname, './keys', 'cert.pem'))	
-// }, app);
+var WebSocketServer = require('ws').Server;
+var server = require('https').createServer({
+  key: fs.readFileSync(path.join(__dirname, './keys', 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, './keys', 'cert.pem'))	
+}, app);
 
 var clientSockets = [];
 var hostSocket = null;
@@ -71,11 +71,11 @@ var actions = {
 	}
 }
 
-// var ws = new WebSocketServer({
-// 	server: server
-// });
+var ws = new WebSocketServer({
+	server: server
+});
 
-/*ws.on('connection', function(sk) {
+ws.on('connection', function(sk) {
 	if( sk.upgradeReq.url !== '/server.html' ) {
 		console.log('client');
 		sk.id = UUID.v4();
@@ -128,7 +128,7 @@ var actions = {
 		actions[json.actionType](json.data);
 	});
 
-});*/
+});
 
 server.listen(process.env.PORT || 5000);
 // app.set('port', (process.env.PORT || 5000));
