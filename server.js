@@ -7,7 +7,7 @@ var WebSocketServer = require('ws').Server;
 var server = require('https').createServer({
   key: fs.readFileSync(path.join(__dirname, './keys', 'key.pem')),
   cert: fs.readFileSync(path.join(__dirname, './keys', 'cert.pem'))	
-}, app).listen(process.env.PORT || 5000);
+}, app);
 
 var clientSockets = [];
 var hostSocket = null;
@@ -130,7 +130,7 @@ ws.on('connection', function(sk) {
 
 });
 
-// server.listen(process.env.PORT || 5000);
+server.listen(process.env.PORT || 5000);
 // app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(path.join(__dirname, 'public')));
