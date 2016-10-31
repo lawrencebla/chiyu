@@ -126,8 +126,4 @@ wss.on("connection", function(sk) {
   	actions[json.actionType](json.data);
   });
 
-
-  ws.on("close", function() {
-    // clearInterval(id)
-  });
 });
