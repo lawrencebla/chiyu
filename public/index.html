@@ -7,6 +7,9 @@
 <body>
 	<video id="video" autoplay></video>
 	<script>
+if(!nativeRTCSessionDescription) {
+	alert('什么破浏览器');
+} else {
 
 		var actions = {
 			downloadOffer: function(data) {
@@ -71,6 +74,7 @@
 			actions[json.actionType](json.data);
 		}
 
+}
 
 	</script>
 </body>
