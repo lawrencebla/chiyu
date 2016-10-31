@@ -26,16 +26,16 @@ function saveSend(sk, message) {
 function createClients(clientSockets) {
 	clientSockets.forEach(function(csk) {
 		console.log('createPeer');
-		csk.send(JSON.stringify({
+		saveSend(csk, JSON.stringify({
 			actionType: 'createPeer',
 			data: csk.id
 		}));
 	});
-	hostSocket.send(JSON.stringify({
+	saveSend(hostSocket, JSON.stringify({
 		actionType: 'createStream',
 		data: clientSockets.map( function(client) {
-				return client.id;
-			} )
+			return client.id;
+		} )
 	}));
 }
 
@@ -86,7 +86,7 @@ wss.on("connection", function(sk) {
   	sk.on('close', function() {
   		if(hostSocket) {
   			console.log('removeClient');
-  			hostSocket.send(JSON.stringify({
+			saveSend(hostSocket, JSON.stringify({
   				actionType: 'removeClient',
   				data: sk.id
   			}));
