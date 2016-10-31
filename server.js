@@ -4,10 +4,10 @@ var express = require('express');
 var UUID = require('node-uuid');
 var app = express();
 var WebSocketServer = require('ws').Server;
-var server = require('https').createServer({
-  key: fs.readFileSync(path.join(__dirname, './keys', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, './keys', 'cert.pem'))	
-}, app);
+// var server = require('https').createServer({
+//   key: fs.readFileSync(path.join(__dirname, './keys', 'key.pem')),
+//   cert: fs.readFileSync(path.join(__dirname, './keys', 'cert.pem'))	
+// }, app);
 
 var clientSockets = [];
 var hostSocket = null;
@@ -72,7 +72,7 @@ var actions = {
 }
 
 var ws = new WebSocketServer({
-	server: server
+	server: app
 });
 
 ws.on('connection', function(sk) {
@@ -129,8 +129,8 @@ ws.on('connection', function(sk) {
 	});
 
 });
-console.error(process.env.PORT);
-server.listen(37476);
+// console.error(process.env.PORT);
+app.listen(37476);
 // app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(path.join(__dirname, 'public')));
